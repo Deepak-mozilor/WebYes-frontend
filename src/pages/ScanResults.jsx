@@ -47,6 +47,94 @@ function ScoreCircle({ label, value }) {
   );
 }
 
+const METRIC_DEFINITIONS = [
+  {
+    key: "fcp_ms",
+    label: "First Contentful Paint",
+    abbr: "FCP",
+    unit: "ms",
+    thresholds: [1800, 3000],
+    format: (v) => `${(v / 1000).toFixed(1)} s`,
+  },
+  {
+    key: "lcp_ms",
+    label: "Largest Contentful Paint",
+    abbr: "LCP",
+    unit: "ms",
+    thresholds: [2500, 4000],
+    format: (v) => `${(v / 1000).toFixed(1)} s`,
+  },
+  {
+    key: "tbt_ms",
+    label: "Total Blocking Time",
+    abbr: "TBT",
+    unit: "ms",
+    thresholds: [200, 600],
+    format: (v) => `${Math.round(v)} ms`,
+  },
+  {
+    key: "cls",
+    label: "Cumulative Layout Shift",
+    abbr: "CLS",
+    unit: "",
+    thresholds: [0.1, 0.25],
+    format: (v) => v.toFixed(3),
+  },
+  {
+    key: "speed_index_ms",
+    label: "Speed Index",
+    abbr: "SI",
+    unit: "ms",
+    thresholds: [3400, 5800],
+    format: (v) => `${(v / 1000).toFixed(1)} s`,
+  },
+  {
+    key: "tti_ms",
+    label: "Time to Interactive",
+    abbr: "TTI",
+    unit: "ms",
+    thresholds: [3800, 7300],
+    format: (v) => `${(v / 1000).toFixed(1)} s`,
+  },
+];
+
+function metricColor(value, thresholds) {
+  if (value <= thresholds[0]) return "#0cce6b";
+  if (value <= thresholds[1]) return "#ffa400";
+  return "#ff4e42";
+}
+
+function MetricsPanel({ metrics }) {
+  if (!metrics) return null;
+  return (
+    <div className="metrics-grid">
+      {METRIC_DEFINITIONS.map(({ key, label, abbr, thresholds, format }) => {
+        const value = metrics[key];
+        if (value == null) return null;
+        const color = metricColor(value, thresholds);
+        return (
+          <div key={key} className="metric-card">
+            <div className="metric-header">
+              <span className="metric-abbr" style={{ color }}>{abbr}</span>
+              <span className="metric-value" style={{ color }}>{format(value)}</span>
+            </div>
+            <p className="metric-label">{label}</p>
+            <div className="metric-bar-bg">
+              <div
+                className="metric-bar-fill"
+                style={{
+                  width: `${Math.min(100, (value / thresholds[1]) * 100)}%`,
+                  background: color,
+                }}
+              />
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function Screenshots({ screenshots }) {
   const [active, setActive] = useState("filmstrip");
 
@@ -187,9 +275,14 @@ export default function ScanResults({ website, summary, scanJobId, onBack }) {
             })}
           </div>
 
-          {/* Screenshots — only in Performance tab */}
+          {/* Metrics + Screenshots — only in Performance tab */}
           {activeTab === "performance" && !loading && (
-            <Screenshots screenshots={screenshots} />
+            <>
+              {screenshots[0]?.metrics && (
+                <MetricsPanel metrics={screenshots[0].metrics} />
+              )}
+              <Screenshots screenshots={screenshots} />
+            </>
           )}
 
           <div className="issues-list">

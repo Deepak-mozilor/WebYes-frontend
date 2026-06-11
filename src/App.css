@@ -221,6 +221,30 @@ input:focus { border-color: #4361ee; }
   font-size: 12px; color: #6b7280; margin-top: 8px; font-weight: 500;
 }
 
+/* ── Metrics ── */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px; margin-bottom: 20px;
+}
+.metric-card {
+  background: #f9fafb; border: 1px solid #e5e7eb;
+  border-radius: 10px; padding: 14px;
+}
+.metric-header {
+  display: flex; justify-content: space-between;
+  align-items: center; margin-bottom: 4px;
+}
+.metric-abbr { font-size: 12px; font-weight: 800; letter-spacing: 0.5px; }
+.metric-value { font-size: 18px; font-weight: 800; }
+.metric-label { font-size: 11px; color: #6b7280; font-weight: 500; margin-bottom: 8px; }
+.metric-bar-bg {
+  height: 4px; background: #e5e7eb; border-radius: 2px; overflow: hidden;
+}
+.metric-bar-fill {
+  height: 100%; border-radius: 2px; transition: width 0.4s ease;
+}
+
 /* ── Filmstrip ── */
 .filmstrip-grid {
   display: flex; gap: 10px; overflow-x: auto;
