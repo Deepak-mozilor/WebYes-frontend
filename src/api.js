@@ -52,4 +52,7 @@ export const api = {
 
   getScreenshots: (scan_job_id) =>
     request("GET", `/scans/${scan_job_id}/screenshots`),
+
+  guestScan: (url, strategy = "desktop") =>
+    request("POST", "/scans/guest", { url, strategy }),
 };

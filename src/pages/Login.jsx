@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { api } from "../api";
 
-export default function Login({ onLogin }) {
+export default function Login({ onLogin, onBack }) {
   const [mode, setMode] = useState("login");
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
@@ -29,48 +29,23 @@ export default function Login({ onLogin }) {
   return (
     <div className="auth-container">
       <div className="auth-card">
-        <h1>WebYes</h1>
+        <div className="auth-card-header">
+          <h1>WebYes</h1>
+          <button className="btn-outline" onClick={onBack}>← Back</button>
+        </div>
         <p className="subtitle">Website Audit Platform</p>
 
         <div className="tab-row">
-          <button
-            className={mode === "login" ? "tab active" : "tab"}
-            onClick={() => setMode("login")}
-          >
-            Login
-          </button>
-          <button
-            className={mode === "signup" ? "tab active" : "tab"}
-            onClick={() => setMode("signup")}
-          >
-            Sign Up
-          </button>
+          <button className={mode === "login" ? "tab active" : "tab"} onClick={() => setMode("login")}>Login</button>
+          <button className={mode === "signup" ? "tab active" : "tab"} onClick={() => setMode("signup")}>Sign Up</button>
         </div>
 
         <form onSubmit={handleSubmit}>
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+          <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
           {mode === "signup" && (
-            <input
-              type="text"
-              placeholder="Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
+            <input type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} required />
           )}
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+          <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
           {error && <p className="error">{error}</p>}
           <button type="submit" className="btn-primary" disabled={loading}>
             {loading ? "Please wait..." : mode === "login" ? "Login" : "Sign Up"}
