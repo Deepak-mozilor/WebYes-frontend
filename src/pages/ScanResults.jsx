@@ -201,7 +201,19 @@ function Screenshots({ screenshots }) {
   );
 }
 
-function IssueItems({ details, detailsType }) {
+function NodeDetail({ node }) {
+  if (!node || typeof node !== "object") return null;
+  return (
+    <div className="item-node">
+      {node.nodeLabel && <p className="item-node-label">{node.nodeLabel}</p>}
+      {node.snippet   && <code className="item-snippet">{node.snippet}</code>}
+      {node.selector  && <p className="item-selector">{node.selector}</p>}
+      {node.explanation && <p className="item-explanation">{node.explanation}</p>}
+    </div>
+  );
+}
+
+function IssueItems({ details }) {
   if (!details?.items?.length) return null;
   const items = details.items;
 
@@ -214,28 +226,45 @@ function IssueItems({ details, detailsType }) {
             if (item.url) return (
               <tr key={i}>
                 <td className="item-url" title={item.url}>{item.url}</td>
-                {item.wastedMs  != null && <td className="item-num">{Math.round(item.wastedMs)} ms</td>}
+                {item.wastedMs   != null && <td className="item-num">{Math.round(item.wastedMs)} ms</td>}
                 {item.wastedBytes != null && <td className="item-num">{Math.round(item.wastedBytes / 1024)} KB</td>}
-                {item.totalBytes != null && <td className="item-num">{Math.round(item.totalBytes / 1024)} KB</td>}
+                {item.totalBytes != null  && <td className="item-num">{Math.round(item.totalBytes / 1024)} KB</td>}
               </tr>
             );
-            // node / DOM audits
-            if (item.snippet || item.selector) return (
+
+            // node-based audits (accessibility, best-practices)
+            if (item.node && typeof item.node === "object") return (
               <tr key={i}>
                 <td>
-                  {item.nodeLabel && <p className="item-node-label">{item.nodeLabel}</p>}
-                  {item.snippet   && <code className="item-snippet">{item.snippet}</code>}
-                  {item.selector  && <p className="item-selector">{item.selector}</p>}
-                  {item.explanation && <p className="item-explanation">{item.explanation}</p>}
+                  <NodeDetail node={item.node} />
+                  {item.subItems?.items?.length > 0 && (
+                    <div className="item-subitems">
+                      {item.subItems.items.map((sub, j) => (
+                        <NodeDetail key={j} node={sub.relatedNode ?? sub.node ?? sub} />
+                      ))}
+                    </div>
+                  )}
                 </td>
               </tr>
             );
-            // fallback — show raw key/value pairs
+
+            // direct node properties (some audits put node fields at top level)
+            if (item.snippet || item.selector) return (
+              <tr key={i}>
+                <td><NodeDetail node={item} /></td>
+              </tr>
+            );
+
+            // fallback — show raw values
             return (
               <tr key={i}>
-                <td className="item-raw">{Object.entries(item).map(([k, v]) => (
-                  <span key={k}><strong>{k}:</strong> {String(v)}{"  "}</span>
-                ))}</td>
+                <td className="item-raw">
+                  {Object.entries(item)
+                    .filter(([, v]) => typeof v !== "object")
+                    .map(([k, v]) => (
+                      <span key={k}><strong>{k}:</strong> {String(v)}{" "}</span>
+                    ))}
+                </td>
               </tr>
             );
           })}
@@ -295,9 +324,7 @@ function IssueCard({ issue }) {
           >
             {open ? "▲ Hide" : "▼ Show"} affected elements ({issue.details.items.length})
           </button>
-          {open && (
-            <IssueItems details={issue.details} detailsType={issue.details_type} />
-          )}
+          {open && <IssueItems details={issue.details} />}
         </div>
       )}
     </div>
