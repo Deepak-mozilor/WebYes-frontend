@@ -201,6 +201,109 @@ function Screenshots({ screenshots }) {
   );
 }
 
+function IssueItems({ details, detailsType }) {
+  if (!details?.items?.length) return null;
+  const items = details.items;
+
+  return (
+    <div className="issue-items">
+      <table className="items-table">
+        <tbody>
+          {items.map((item, i) => {
+            // opportunity / url-based audits
+            if (item.url) return (
+              <tr key={i}>
+                <td className="item-url" title={item.url}>{item.url}</td>
+                {item.wastedMs  != null && <td className="item-num">{Math.round(item.wastedMs)} ms</td>}
+                {item.wastedBytes != null && <td className="item-num">{Math.round(item.wastedBytes / 1024)} KB</td>}
+                {item.totalBytes != null && <td className="item-num">{Math.round(item.totalBytes / 1024)} KB</td>}
+              </tr>
+            );
+            // node / DOM audits
+            if (item.snippet || item.selector) return (
+              <tr key={i}>
+                <td>
+                  {item.nodeLabel && <p className="item-node-label">{item.nodeLabel}</p>}
+                  {item.snippet   && <code className="item-snippet">{item.snippet}</code>}
+                  {item.selector  && <p className="item-selector">{item.selector}</p>}
+                  {item.explanation && <p className="item-explanation">{item.explanation}</p>}
+                </td>
+              </tr>
+            );
+            // fallback — show raw key/value pairs
+            return (
+              <tr key={i}>
+                <td className="item-raw">{Object.entries(item).map(([k, v]) => (
+                  <span key={k}><strong>{k}:</strong> {String(v)}{"  "}</span>
+                ))}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function IssueCard({ issue }) {
+  const [open, setOpen] = useState(false);
+  const hasItems = issue.details?.items?.length > 0;
+
+  return (
+    <div className="issue-card">
+      <div className="issue-card-header">
+        <div className="issue-card-title">
+          <span
+            className="severity-badge"
+            style={{ background: issue.severity === "critical" ? "#dc2626" : "#d97706" }}
+          >
+            {issue.severity}
+          </span>
+          <h3>{issue.title}</h3>
+        </div>
+        {issue.display_value && (
+          <span className="display-value">{issue.display_value}</span>
+        )}
+      </div>
+
+      {issue.description && (
+        <p className="issue-description">{issue.description}</p>
+      )}
+
+      <div className="issue-footer">
+        {issue.item_count != null && (
+          <span className="issue-meta">{issue.item_count} items affected</span>
+        )}
+        {issue.wasted_ms != null && (
+          <span className="issue-meta">{Math.round(issue.wasted_ms)} ms wasted</span>
+        )}
+        <a
+          href={learnMoreUrl(issue.category, issue.rule_id)}
+          target="_blank"
+          rel="noreferrer"
+          className="learn-more"
+        >
+          Learn more →
+        </a>
+      </div>
+
+      {hasItems && (
+        <div className="issue-items-toggle">
+          <button
+            className="items-toggle-btn"
+            onClick={() => setOpen((o) => !o)}
+          >
+            {open ? "▲ Hide" : "▼ Show"} affected elements ({issue.details.items.length})
+          </button>
+          {open && (
+            <IssueItems details={issue.details} detailsType={issue.details_type} />
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function ScanResults({ website, summary, scanJobId, onBack }) {
   const [activeTab, setActiveTab] = useState("performance");
   const [issues, setIssues] = useState([]);
@@ -292,43 +395,7 @@ export default function ScanResults({ website, summary, scanJobId, onBack }) {
               <p className="empty">No issues in this category.</p>
             ) : (
               activeIssues.map((issue) => (
-                <div key={issue.id} className="issue-card">
-                  <div className="issue-card-header">
-                    <div className="issue-card-title">
-                      <span
-                        className="severity-badge"
-                        style={{ background: issue.severity === "critical" ? "#dc2626" : "#d97706" }}
-                      >
-                        {issue.severity}
-                      </span>
-                      <h3>{issue.title}</h3>
-                    </div>
-                    {issue.display_value && (
-                      <span className="display-value">{issue.display_value}</span>
-                    )}
-                  </div>
-
-                  {issue.description && (
-                    <p className="issue-description">{issue.description}</p>
-                  )}
-
-                  <div className="issue-footer">
-                    {issue.item_count != null && (
-                      <span className="issue-meta">{issue.item_count} items affected</span>
-                    )}
-                    {issue.wasted_ms != null && (
-                      <span className="issue-meta">{Math.round(issue.wasted_ms)} ms wasted</span>
-                    )}
-                    <a
-                      href={learnMoreUrl(issue.category, issue.rule_id)}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="learn-more"
-                    >
-                      Learn more →
-                    </a>
-                  </div>
-                </div>
+                <IssueCard key={issue.id} issue={issue} />
               ))
             )}
           </div>

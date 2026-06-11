@@ -188,6 +188,45 @@ input:focus { border-color: #4361ee; }
 }
 .learn-more:hover { text-decoration: underline; color: #1d3fad; }
 
+/* ── Issue items dropdown ── */
+.issue-items-toggle { margin-top: 10px; }
+
+.items-toggle-btn {
+  background: none; border: 1px solid #d1d5db; border-radius: 6px;
+  padding: 5px 12px; font-size: 12px; font-weight: 600; color: #374151;
+  cursor: pointer; width: 100%; text-align: left;
+}
+.items-toggle-btn:hover { background: #f3f4f6; border-color: #9ca3af; }
+
+.issue-items {
+  margin-top: 8px; border: 1px solid #e5e7eb; border-radius: 8px;
+  overflow: hidden; background: #fff;
+}
+
+.items-table {
+  width: 100%; border-collapse: collapse; font-size: 12px;
+}
+.items-table tr { border-bottom: 1px solid #f3f4f6; }
+.items-table tr:last-child { border-bottom: none; }
+.items-table td { padding: 8px 12px; vertical-align: top; color: #374151; }
+
+.item-url {
+  max-width: 340px; overflow: hidden; text-overflow: ellipsis;
+  white-space: nowrap; font-family: monospace; font-size: 11px; color: #1d4ed8;
+}
+.item-num { white-space: nowrap; font-weight: 600; color: #b91c1c; text-align: right; }
+
+.item-snippet {
+  display: block; font-family: monospace; font-size: 11px;
+  background: #f8fafc; padding: 4px 8px; border-radius: 4px;
+  border: 1px solid #e2e8f0; color: #1e293b; white-space: pre-wrap;
+  word-break: break-all; margin: 2px 0;
+}
+.item-selector  { font-family: monospace; font-size: 11px; color: #6b7280; }
+.item-node-label { font-size: 12px; font-weight: 600; color: #111827; }
+.item-explanation { font-size: 11px; color: #dc2626; margin-top: 2px; }
+.item-raw { font-size: 11px; color: #374151; }
+
 /* ── Screenshots ── */
 .screenshots-block {
   background: #f3f4f6; border-radius: 10px;
@@ -220,6 +259,15 @@ input:focus { border-color: #4361ee; }
 .screenshot-label {
   font-size: 12px; color: #6b7280; margin-top: 8px; font-weight: 500;
 }
+
+/* ── Strategy select ── */
+.strategy-select {
+  padding: 8px 12px; border: 2px solid #c9cdd4; border-radius: 8px;
+  background: #fff; font-size: 13px; font-weight: 600; color: #374151;
+  cursor: pointer; outline: none;
+}
+.strategy-select:focus { border-color: #4361ee; }
+.strategy-select:disabled { opacity: 0.55; cursor: not-allowed; }
 
 /* ── Metrics ── */
 .metrics-grid {

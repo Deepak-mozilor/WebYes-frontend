@@ -10,6 +10,7 @@ export default function Dashboard({ onLogout }) {
   const [scanning, setScanning] = useState(null);
   const [selectedScan, setSelectedScan] = useState(null);
   const [user, setUser] = useState(null);
+  const [strategies, setStrategies] = useState({});
 
   useEffect(() => {
     api.me().then(setUser).catch(() => {});
@@ -39,10 +40,11 @@ export default function Dashboard({ onLogout }) {
   }
 
   async function handleScan(website) {
+    const strategy = strategies[website.id] ?? "desktop";
     setScanning(website.id);
     setError("");
     try {
-      const job = await api.triggerScan(website.id, "desktop");
+      const job = await api.triggerScan(website.id, strategy);
       const summary = await api.getScanSummary(job.scan_job_id);
       setSelectedScan({ website, summary, scanJobId: job.scan_job_id });
       await loadWebsites();
@@ -64,12 +66,16 @@ export default function Dashboard({ onLogout }) {
   }
 
   async function handleViewHistory(website) {
+    const strategy = strategies[website.id] ?? "desktop";
     try {
       const history = await api.getScanHistory(website.id);
-      if (!history.length) return alert("No scan history yet.");
-      const latest = history[0];
-      const summary = await api.getScanSummary(latest.scan_job_id);
-      setSelectedScan({ website, summary, scanJobId: latest.scan_job_id });
+      const match = history.find((h) => h.strategy === strategy);
+      if (!match) {
+        handleScan(website);
+        return;
+      }
+      const summary = await api.getScanSummary(match.scan_job_id);
+      setSelectedScan({ website, summary, scanJobId: match.scan_job_id });
     } catch (err) {
       setError(err.message);
     }
@@ -137,6 +143,17 @@ export default function Dashboard({ onLogout }) {
                     </p>
                   </div>
                   <div className="website-actions">
+                    <select
+                      className="strategy-select"
+                      value={strategies[w.id] ?? "desktop"}
+                      onChange={(e) =>
+                        setStrategies((s) => ({ ...s, [w.id]: e.target.value }))
+                      }
+                      disabled={scanning === w.id}
+                    >
+                      <option value="desktop">🖥 Desktop</option>
+                      <option value="mobile">📱 Mobile</option>
+                    </select>
                     <button
                       className="btn-primary"
                       onClick={() => handleScan(w)}
